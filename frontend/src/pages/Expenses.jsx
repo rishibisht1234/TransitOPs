@@ -209,7 +209,17 @@ const Expenses = ({ showToast }) => {
         {loading ? (
           <p style={{ textAlign: 'center', padding: '1rem' }}>Loading expenses...</p>
         ) : filteredExpenses.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>No expenses recorded.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem', gap: '1rem' }}>
+            <Coins size={48} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>No expenses recorded</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center', maxWidth: '300px' }}>
+              Log fuel, maintenance, toll, parking, or other fleet expenses to start tracking operational costs.
+            </p>
+            <button className="btn btn-primary" onClick={handleOpenModal}>
+              <Plus size={16} />
+              <span>Log Your First Expense</span>
+            </button>
+          </div>
         ) : (
           <div className="table-container">
             <table>

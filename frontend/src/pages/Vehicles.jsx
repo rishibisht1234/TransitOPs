@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, Edit2, Trash2, ShieldAlert, Download } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ShieldAlert, Download, Truck } from 'lucide-react';
 
 const Vehicles = ({ showToast }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -238,7 +238,17 @@ const Vehicles = ({ showToast }) => {
         {loading ? (
           <p style={{ textAlign: 'center', padding: '1rem' }}>Loading vehicles data...</p>
         ) : filteredVehicles.length === 0 ? (
-          <p style={{ textAlign: 'center', padding: '1rem', color: 'var(--text-secondary)' }}>No vehicles found matching filters.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem', gap: '1rem' }}>
+            <Truck size={48} style={{ color: 'var(--text-secondary)', opacity: 0.5 }} />
+            <h3 style={{ fontSize: '1.125rem', fontWeight: 600 }}>No vehicles found</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', textAlign: 'center', maxWidth: '300px' }}>
+              Add a new vehicle to your fleet to start dispatching trips and logging maintenance.
+            </p>
+            <button className="btn btn-primary" onClick={handleOpenModal}>
+              <Plus size={16} />
+              <span>Add Your First Vehicle</span>
+            </button>
+          </div>
         ) : (
           <div className="table-container">
             <table>

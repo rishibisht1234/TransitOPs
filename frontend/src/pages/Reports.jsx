@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import { Bar } from 'react-chartjs-2';
-import { Download, TrendingUp, DollarSign, Fuel, Award } from 'lucide-react';
+import { Download, TrendingUp, DollarSign, Fuel, Award, Printer } from 'lucide-react';
 import { 
   Chart as ChartJS, 
   CategoryScale, 
@@ -134,10 +134,16 @@ const Reports = ({ showToast, theme }) => {
             Comprehensive analytics overview of fleet utilization, fuel economy, and ROI.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleExportCSV}>
-          <Download size={16} />
-          <span>Export CSV Report</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={() => window.print()}>
+            <Printer size={16} />
+            <span>Print / PDF Report</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV Report</span>
+          </button>
+        </div>
       </div>
 
       {/* Grid of Report Cards */}

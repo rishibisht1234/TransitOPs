@@ -12,7 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ currentView, setCurrentView, collapsed, setCollapsed, onLogout }) => {
+const Sidebar = ({ currentView, setCurrentView, collapsed, setCollapsed, onLogout, userRole }) => {
   const menuItems = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'vehicles', name: 'Vehicles', icon: Truck },
@@ -23,6 +23,22 @@ const Sidebar = ({ currentView, setCurrentView, collapsed, setCollapsed, onLogou
     { id: 'reports', name: 'Reports', icon: BarChart3 },
   ];
 
+  const filteredMenuItems = menuItems.filter(item => {
+    if (userRole === 'ADMIN' || userRole === 'FLEET_MANAGER') {
+      return true;
+    }
+    if (userRole === 'DISPATCHER') {
+      return item.id === 'dashboard' || item.id === 'trips';
+    }
+    if (userRole === 'SAFETY_OFFICER') {
+      return item.id === 'dashboard' || item.id === 'drivers';
+    }
+    if (userRole === 'FINANCIAL_ANALYST') {
+      return item.id === 'dashboard' || item.id === 'expenses' || item.id === 'reports';
+    }
+    return item.id === 'dashboard'; // fallback
+  });
+
   return (
     <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-logo">
@@ -31,7 +47,7 @@ const Sidebar = ({ currentView, setCurrentView, collapsed, setCollapsed, onLogou
       </div>
 
       <ul className="sidebar-menu">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           return (
             <li

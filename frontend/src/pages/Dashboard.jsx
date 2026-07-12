@@ -32,7 +32,7 @@ ChartJS.register(
   Title
 );
 
-const Dashboard = ({ setCurrentView, showToast, theme }) => {
+const Dashboard = ({ setCurrentView, showToast, theme, userRole }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -160,19 +160,39 @@ const Dashboard = ({ setCurrentView, showToast, theme }) => {
         <div className="card">
           <h2 style={{ fontSize: '1.125rem', fontWeight: 600, marginBottom: '1rem' }}>Quick Actions & Workflows</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <button className="btn btn-secondary" onClick={() => setCurrentView('trips')} style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setCurrentView('trips')} 
+              disabled={userRole !== 'ADMIN' && userRole !== 'FLEET_MANAGER' && userRole !== 'DISPATCHER'}
+              style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            >
               <PlusCircle size={20} style={{ color: 'var(--accent-primary)', marginBottom: '4px' }} />
               <span>Create New Trip</span>
             </button>
-            <button className="btn btn-secondary" onClick={() => setCurrentView('maintenance')} style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setCurrentView('maintenance')} 
+              disabled={userRole !== 'ADMIN' && userRole !== 'FLEET_MANAGER'}
+              style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            >
               <Wrench size={20} style={{ color: 'var(--warning)', marginBottom: '4px' }} />
               <span>Log Maintenance</span>
             </button>
-            <button className="btn btn-secondary" onClick={() => setCurrentView('expenses')} style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setCurrentView('expenses')} 
+              disabled={userRole !== 'ADMIN' && userRole !== 'FLEET_MANAGER' && userRole !== 'FINANCIAL_ANALYST'}
+              style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            >
               <Coins size={20} style={{ color: 'var(--success)', marginBottom: '4px' }} />
               <span>Record Expense</span>
             </button>
-            <button className="btn btn-secondary" onClick={() => setCurrentView('reports')} style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={() => setCurrentView('reports')} 
+              disabled={userRole !== 'ADMIN' && userRole !== 'FLEET_MANAGER' && userRole !== 'FINANCIAL_ANALYST'}
+              style={{ height: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+            >
               <TrendingUp size={20} style={{ color: 'var(--accent-primary)', marginBottom: '4px' }} />
               <span>View ROI & Profit</span>
             </button>
@@ -198,7 +218,12 @@ const Dashboard = ({ setCurrentView, showToast, theme }) => {
               </div>
             </div>
           </div>
-          <button className="btn btn-primary" onClick={() => setCurrentView('trips')} style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}>
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setCurrentView('trips')} 
+            disabled={userRole !== 'ADMIN' && userRole !== 'FLEET_MANAGER' && userRole !== 'DISPATCHER'}
+            style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}
+          >
             <Play size={16} />
             <span>Go to Dispatch Center</span>
           </button>

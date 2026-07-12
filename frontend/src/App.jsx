@@ -17,6 +17,7 @@ const App = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [userRole, setUserRole] = useState('DISPATCHER');
+  const [user, setUser] = useState(null);
   
   // Toast notifications state
   const [toast, setToast] = useState(null);
@@ -26,16 +27,19 @@ const App = () => {
     const token = localStorage.getItem('access_token');
     if (token) {
       setIsAuthenticated(true);
-      const role = getUserRoleFromToken(token);
-      setUserRole(role);
+      const decodedUser = decodeUserFromToken(token);
+      if (decodedUser) {
+        setUser(decodedUser);
+        setUserRole(decodedUser.role);
+      }
     }
     
     // Apply theme
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Decode JWT payload to fetch the user role
-  const getUserRoleFromToken = (token) => {
+  // Decode JWT payload to fetch the user role and profile details
+  const decodeUserFromToken = (token) => {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -46,10 +50,14 @@ const App = () => {
           .join('')
       );
       const payload = JSON.parse(jsonPayload);
-      return payload.role || 'DISPATCHER';
+      return {
+        role: payload.role || 'DISPATCHER',
+        email: payload.email || '',
+        name: payload.first_name ? `${payload.first_name} ${payload.last_name || ''}`.trim() : ''
+      };
     } catch (e) {
       console.error('Error decoding token:', e);
-      return 'DISPATCHER';
+      return null;
     }
   };
 
@@ -57,8 +65,11 @@ const App = () => {
     const token = localStorage.getItem('access_token');
     setIsAuthenticated(true);
     if (token) {
-      const role = getUserRoleFromToken(token);
-      setUserRole(role);
+      const decodedUser = decodeUserFromToken(token);
+      if (decodedUser) {
+        setUser(decodedUser);
+        setUserRole(decodedUser.role);
+      }
     }
     setCurrentView('dashboard');
   };
@@ -67,6 +78,8 @@ const App = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setIsAuthenticated(false);
+    setUser(null);
+    setUserRole('DISPATCHER');
     showToast('Logged out successfully', 'info');
   };
 
@@ -84,7 +97,7 @@ const App = () => {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} />;
+        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} userRole={userRole} />;
       case 'vehicles':
         return <Vehicles showToast={showToast} />;
       case 'drivers':
@@ -98,7 +111,7 @@ const App = () => {
       case 'reports':
         return <Reports showToast={showToast} theme={theme} />;
       default:
-        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} />;
+        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} userRole={userRole} />;
     }
   };
 
@@ -124,6 +137,7 @@ const App = () => {
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
         onLogout={handleLogout}
+        userRole={userRole}
       />
 
       {/* Main Container */}
@@ -135,6 +149,7 @@ const App = () => {
           setCollapsed={setSidebarCollapsed}
           theme={theme}
           toggleTheme={toggleTheme}
+          user={user}
         />
 
         {/* View Component */}
