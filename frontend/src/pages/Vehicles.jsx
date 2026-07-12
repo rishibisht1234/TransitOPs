@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, Edit2, Trash2, ShieldAlert } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ShieldAlert, Download } from 'lucide-react';
 
 const Vehicles = ({ showToast }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -142,6 +142,35 @@ const Vehicles = ({ showToast }) => {
     }
   };
 
+  const handleExportCSV = () => {
+    if (filteredVehicles.length === 0) {
+      showToast('No vehicles data to export', 'warning');
+      return;
+    }
+    const headers = ['Registration Number', 'Model/Name', 'Type', 'Max Capacity (kg)', 'Odometer (km)', 'Acquisition Cost (INR)', 'Status'];
+    const rows = filteredVehicles.map(v => [
+      v.registration_number,
+      v.vehicle_name,
+      v.vehicle_type,
+      v.maximum_load_capacity,
+      v.odometer,
+      v.acquisition_cost,
+      v.status
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
+      + [headers.join(','), ...rows.map(e => e.map(val => `"${val}"`).join(','))].join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'TransitOps_Vehicles_Report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Vehicles data exported as CSV!', 'success');
+  };
+
   const modalFooter = (
     <>
       <button className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
@@ -192,10 +221,16 @@ const Vehicles = ({ showToast }) => {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={handleOpenAddModal}>
-          <Plus size={16} />
-          <span>Add Vehicle</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenAddModal}>
+            <Plus size={16} />
+            <span>Add Vehicle</span>
+          </button>
+        </div>
       </div>
 
       {/* Main List Card */}

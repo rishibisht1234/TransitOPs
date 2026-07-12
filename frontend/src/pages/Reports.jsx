@@ -21,9 +21,13 @@ ChartJS.register(
   Legend
 );
 
-const Reports = ({ showToast }) => {
+const Reports = ({ showToast, theme }) => {
   const [reportData, setReportData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const textColor = theme === 'dark' ? '#f8fafc' : '#0f172a';
+  const textSecondary = theme === 'dark' ? '#94a3b8' : '#64748b';
+  const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
 
   useEffect(() => {
     fetchReportData();
@@ -106,17 +110,17 @@ const Reports = ({ showToast }) => {
     plugins: {
       legend: {
         labels: {
-          color: 'var(--text-primary)',
+          color: textColor,
         }
       }
     },
     scales: {
       y: {
-        ticks: { color: 'var(--text-secondary)' },
-        grid: { color: 'var(--border-color)' }
+        ticks: { color: textSecondary },
+        grid: { color: gridColor }
       },
       x: {
-        ticks: { color: 'var(--text-secondary)' }
+        ticks: { color: textSecondary }
       }
     }
   };

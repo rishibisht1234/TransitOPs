@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, Coins } from 'lucide-react';
+import { Plus, Search, Coins, Download } from 'lucide-react';
 
 const Expenses = ({ showToast }) => {
   const [expenses, setExpenses] = useState([]);
@@ -125,6 +125,35 @@ const Expenses = ({ showToast }) => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleExportCSV = () => {
+    if (filteredExpenses.length === 0) {
+      showToast('No expenses to export', 'warning');
+      return;
+    }
+    const headers = ['Expense ID', 'Date', 'Category', 'Vehicle', 'Trip Details', 'Amount (INR)', 'Remarks'];
+    const rows = filteredExpenses.map(exp => [
+      exp.id,
+      exp.date,
+      exp.category,
+      getVehicleReg(exp.vehicle),
+      getTripDetails(exp.trip),
+      exp.amount,
+      exp.remarks || '-'
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
+      + [headers.join(','), ...rows.map(e => e.map(val => `"${val}"`).join(','))].join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'TransitOps_Expenses_Report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Expenses data exported as CSV!', 'success');
+  };
+
   const footer = (
     <>
       <button className="btn btn-secondary" onClick={() => setIsOpen(false)}>Cancel</button>
@@ -163,10 +192,16 @@ const Expenses = ({ showToast }) => {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={handleOpenModal}>
-          <Plus size={16} />
-          <span>Log Expense</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenModal}>
+            <Plus size={16} />
+            <span>Log Expense</span>
+          </button>
+        </div>
       </div>
 
       {/* Main list */}

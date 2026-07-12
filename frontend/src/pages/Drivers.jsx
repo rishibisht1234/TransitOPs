@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, Edit2, Trash2, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, ShieldAlert, AlertTriangle, Download } from 'lucide-react';
 
 const Drivers = ({ showToast }) => {
   const [drivers, setDrivers] = useState([]);
@@ -155,6 +155,35 @@ const Drivers = ({ showToast }) => {
   // Count expiring soon or expired licenses
   const warningDrivers = drivers.filter(d => getLicenseStatus(d.license_expiry_date) !== null);
 
+  const handleExportCSV = () => {
+    if (filteredDrivers.length === 0) {
+      showToast('No drivers data to export', 'warning');
+      return;
+    }
+    const headers = ['Driver Name', 'License Number', 'Category', 'License Expiry', 'Contact Number', 'Safety Score (%)', 'Status'];
+    const rows = filteredDrivers.map(d => [
+      d.name,
+      d.license_number,
+      d.license_category,
+      d.license_expiry_date,
+      d.contact_number,
+      d.safety_score,
+      d.status
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
+      + [headers.join(','), ...rows.map(e => e.map(val => `"${val}"`).join(','))].join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'TransitOps_Drivers_Report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Drivers data exported as CSV!', 'success');
+  };
+
   const modalFooter = (
     <>
       <button className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
@@ -202,10 +231,16 @@ const Drivers = ({ showToast }) => {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={handleOpenAddModal}>
-          <Plus size={16} />
-          <span>Add Driver</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenAddModal}>
+            <Plus size={16} />
+            <span>Add Driver</span>
+          </button>
+        </div>
       </div>
 
       {/* Main List */}

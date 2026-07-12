@@ -84,7 +84,7 @@ const App = () => {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} />;
+        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} />;
       case 'vehicles':
         return <Vehicles showToast={showToast} />;
       case 'drivers':
@@ -96,9 +96,9 @@ const App = () => {
       case 'expenses':
         return <Expenses showToast={showToast} />;
       case 'reports':
-        return <Reports showToast={showToast} />;
+        return <Reports showToast={showToast} theme={theme} />;
       default:
-        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} />;
+        return <Dashboard setCurrentView={setCurrentView} showToast={showToast} theme={theme} />;
     }
   };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, CheckCircle2, Wrench } from 'lucide-react';
+import { Plus, Search, CheckCircle2, Wrench, Download } from 'lucide-react';
 
 const Maintenance = ({ showToast, userRole }) => {
   const [logs, setLogs] = useState([]);
@@ -141,6 +141,36 @@ const Maintenance = ({ showToast, userRole }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleExportCSV = () => {
+    if (filteredLogs.length === 0) {
+      showToast('No maintenance records to export', 'warning');
+      return;
+    }
+    const headers = ['Log ID', 'Vehicle', 'Issue', 'Description', 'Opened Date', 'Closed Date', 'Cost (INR)', 'Status'];
+    const rows = filteredLogs.map(log => [
+      log.id,
+      getVehicleReg(log.vehicle),
+      log.issue,
+      log.description,
+      log.opened_date,
+      log.closed_date || '-',
+      log.cost,
+      log.status
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
+      + [headers.join(','), ...rows.map(e => e.map(val => `"${val}"`).join(','))].join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'TransitOps_Maintenance_Report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Maintenance logs exported as CSV!', 'success');
+  };
+
   const createFooter = (
     <>
       <button className="btn btn-secondary" onClick={() => setIsCreateOpen(false)}>Cancel</button>
@@ -185,10 +215,16 @@ const Maintenance = ({ showToast, userRole }) => {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={handleOpenCreate}>
-          <Plus size={16} />
-          <span>Log Maintenance</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenCreate}>
+            <Plus size={16} />
+            <span>Log Maintenance</span>
+          </button>
+        </div>
       </div>
 
       {/* Main logs list */}

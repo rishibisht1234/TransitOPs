@@ -32,9 +32,13 @@ ChartJS.register(
   Title
 );
 
-const Dashboard = ({ setCurrentView, showToast }) => {
+const Dashboard = ({ setCurrentView, showToast, theme }) => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const textColor = theme === 'dark' ? '#f8fafc' : '#0f172a';
+  const textSecondary = theme === 'dark' ? '#94a3b8' : '#64748b';
+  const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
 
   useEffect(() => {
     fetchDashboardStats();
@@ -100,7 +104,7 @@ const Dashboard = ({ setCurrentView, showToast }) => {
       legend: {
         position: 'bottom',
         labels: {
-          color: 'var(--text-primary)',
+          color: textColor,
         }
       }
     }
@@ -217,11 +221,11 @@ const Dashboard = ({ setCurrentView, showToast }) => {
               ...chartOptions,
               scales: {
                 y: {
-                  ticks: { stepSize: 1, color: 'var(--text-secondary)' },
-                  grid: { color: 'var(--border-color)' }
+                  ticks: { stepSize: 1, color: textSecondary },
+                  grid: { color: gridColor }
                 },
                 x: {
-                  ticks: { color: 'var(--text-secondary)' },
+                  ticks: { color: textSecondary },
                   grid: { display: false }
                 }
               }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { Plus, Search, Edit2, Play, CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { Plus, Search, Edit2, Play, CheckCircle2, XCircle, FileText, Download } from 'lucide-react';
 
 const Trips = ({ showToast }) => {
   const [trips, setTrips] = useState([]);
@@ -247,6 +247,39 @@ const Trips = ({ showToast }) => {
     return matchesSearch && matchesStatus;
   });
 
+  const handleExportCSV = () => {
+    if (filteredTrips.length === 0) {
+      showToast('No trips to export', 'warning');
+      return;
+    }
+    const headers = ['Trip ID', 'Vehicle', 'Driver', 'Source', 'Destination', 'Cargo Weight (kg)', 'Planned Distance (km)', 'Actual Distance (km)', 'Fuel Consumed (L)', 'Revenue (INR)', 'Status'];
+    const rows = filteredTrips.map(t => [
+      t.id,
+      getVehicleName(t.vehicle),
+      getDriverName(t.driver),
+      t.source,
+      t.destination,
+      t.cargo_weight,
+      t.planned_distance,
+      t.actual_distance || '-',
+      t.fuel_consumed || '-',
+      t.revenue,
+      t.status
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF'
+      + [headers.join(','), ...rows.map(e => e.map(val => `"${val}"`).join(','))].join('\n');
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'TransitOps_Trips_Report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Trips data exported as CSV!', 'success');
+  };
+
   const createModalFooter = (
     <>
       <button className="btn btn-secondary" onClick={() => setIsCreateModalOpen(false)}>Cancel</button>
@@ -291,10 +324,16 @@ const Trips = ({ showToast }) => {
           </select>
         </div>
 
-        <button className="btn btn-primary" onClick={handleOpenCreateModal}>
-          <Plus size={16} />
-          <span>Plan Trip</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <button className="btn btn-secondary" onClick={handleExportCSV}>
+            <Download size={16} />
+            <span>Export CSV</span>
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenCreateModal}>
+            <Plus size={16} />
+            <span>Plan Trip</span>
+          </button>
+        </div>
       </div>
 
       {/* Grid List */}
