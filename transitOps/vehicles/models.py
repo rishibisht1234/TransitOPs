@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 
 class Vehicle(models.Model):
@@ -50,5 +51,9 @@ class Vehicle(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def clean(self):
+        if self.maximum_load_capacity <= 0:
+            raise ValidationError("Maximum load capacity must be positive.")
+    
     def __str__(self):
         return f"{self.registration_number} - {self.vehicle_name}"

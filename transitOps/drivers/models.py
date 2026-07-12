@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.exceptions import ValidationError
 
 class Driver(models.Model):
 
@@ -46,6 +46,10 @@ class Driver(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        if self.safety_score < 0 or self.safety_score > 100:
+            raise ValidationError("Safety score must be between 0 and 100.")
 
     def __str__(self):
         return self.name
