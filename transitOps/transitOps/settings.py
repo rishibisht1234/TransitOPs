@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     "trips",  #for trip management
     "expenses",  #for expense management
     "dashboard",  #for dashboard
-    "reports"  #for reports 
+    "reports",  #for reports 
+    "common", #for common
 
 ]
 
