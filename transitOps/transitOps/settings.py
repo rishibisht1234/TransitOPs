@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     "maintenance",  #for maintenance management
     "trips",  #for trip management
     "expenses",  #for expense management
-    "dashboard" #for dashboard
+    "dashboard",  #for dashboard
+    "reports"  #for reports 
 
 ]
 
