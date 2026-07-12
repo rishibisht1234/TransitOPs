@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     "vehicles",  #for vehicle management
     "drivers",  #for driver management
     "maintenance",  #for maintenance management
+    "trips",  #for trip management
+    "expenses",  #for expense management
 
 ]
 
