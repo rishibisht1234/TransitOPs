@@ -2,9 +2,11 @@ from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
+
+# pyrefly: ignore [missing-import]
+from accounts.views import CustomTokenObtainPairView
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -25,7 +27,7 @@ urlpatterns = [
     path("api/accounts/", include("accounts.urls")),
 
     # JWT
-    path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/login/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
 
     # Swagger

@@ -3,10 +3,25 @@ from .models import Vehicle
 
 
 class VehicleSerializer(serializers.ModelSerializer):
+    total_operational_cost = serializers.ReadOnlyField()
+    vehicle_roi = serializers.ReadOnlyField()
 
     class Meta:
         model = Vehicle
-        fields = "__all__"
+        fields = [
+            "id",
+            "registration_number",
+            "vehicle_name",
+            "vehicle_type",
+            "maximum_load_capacity",
+            "odometer",
+            "acquisition_cost",
+            "status",
+            "created_at",
+            "updated_at",
+            "total_operational_cost",
+            "vehicle_roi",
+        ]
 
     def validate_maximum_load_capacity(self, value):
         if value <= 0:

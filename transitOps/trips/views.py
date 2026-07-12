@@ -12,9 +12,14 @@ from vehicles.models import Vehicle
 from drivers.models import Driver
 
 
+# pyrefly: ignore [missing-import]
+from accounts.permissions import TripPermission
+
+
 class TripViewSet(ModelViewSet):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
+    permission_classes = [TripPermission]
 
     @action(detail=True, methods=["post"], url_path="dispatch")
     def dispatch_trip(self, request, pk=None):
@@ -29,6 +34,12 @@ class TripViewSet(ModelViewSet):
         if trip.vehicle.status != Vehicle.VehicleStatus.AVAILABLE:
             return Response(
                 {"error": "Vehicle is not available."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not trip.driver:
+            return Response(
+                {"error": "Trip must have an assigned driver before dispatch."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -127,6 +138,25 @@ class TripViewSet(ModelViewSet):
         final_odometer = request.data.get("final_odometer")
 
         if final_odometer is not None:
+            try:
+                final_odometer = int(final_odometer)
+            except (TypeError, ValueError):
+                return Response(
+                    {"error": "Final odometer must be an integer."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if final_odometer <= trip.vehicle.odometer:
+                return Response(
+                    {
+                        "error": (
+                            f"Final odometer ({final_odometer}) must be greater than "
+                            f"the vehicle's current odometer ({trip.vehicle.odometer})."
+                        )
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             trip.vehicle.odometer = final_odometer
 
         trip.end_time = timezone.now()

@@ -9,6 +9,7 @@ from rest_framework import filters
 class VehicleViewSet(ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
+    permission_classes = [FleetManagerPermission]
 
     filter_backends = [
         DjangoFilterBackend,
