@@ -28,3 +28,19 @@ class TripSerializer(serializers.ModelSerializer):
                 "Revenue cannot be negative."
             )
         return value
+    
+    def validate(self, attrs):
+
+        vehicle = attrs.get("vehicle")
+        cargo = attrs.get("cargo_weight")
+
+        if vehicle and cargo:
+            if cargo > vehicle.maximum_load_capacity:
+                raise serializers.ValidationError(
+                    {
+                        "cargo_weight":
+                        "Cargo exceeds vehicle capacity."
+                    }
+                )
+
+        return attrs

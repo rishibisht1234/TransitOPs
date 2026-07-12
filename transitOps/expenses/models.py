@@ -1,5 +1,7 @@
 from django.db import models
+# pyrefly: ignore [missing-import]
 from vehicles.models import Vehicle
+# pyrefly: ignore [missing-import]
 from trips.models import Trip
 
 
@@ -15,7 +17,9 @@ class Expense(models.Model):
     vehicle = models.ForeignKey(
         Vehicle,
         on_delete=models.CASCADE,
-        related_name="expenses"
+        related_name="expenses",
+        null=True,
+        blank=True
     )
 
     trip = models.ForeignKey(

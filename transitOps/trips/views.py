@@ -6,7 +6,10 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import Trip
 from .serializers import TripSerializer
+# pyrefly: ignore [missing-import]
 from vehicles.models import Vehicle
+# pyrefly: ignore [missing-import]
+from drivers.models import Driver
 
 
 class TripViewSet(ModelViewSet):
@@ -29,6 +32,24 @@ class TripViewSet(ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if trip.driver.status == Driver.DriverStatus.SUSPENDED:
+            return Response(
+                {"error": "Driver is suspended."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if trip.driver.status != Driver.DriverStatus.AVAILABLE:
+            return Response(
+                {"error": "Driver is not available."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if trip.driver.license_expiry_date < timezone.now().date():
+            return Response(
+                {"error": "Driver license has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if trip.cargo_weight > trip.vehicle.maximum_load_capacity:
             return Response(
                 {"error": "Cargo exceeds vehicle capacity."},
@@ -39,6 +60,9 @@ class TripViewSet(ModelViewSet):
         trip.start_time = timezone.now()
 
         trip.vehicle.status = Vehicle.VehicleStatus.ON_TRIP
+        trip.driver.status = Driver.DriverStatus.ON_TRIP
+        trip.driver.save()
+        
 
         trip.vehicle.save()
         trip.save()
@@ -64,6 +88,27 @@ class TripViewSet(ModelViewSet):
         actual_distance = request.data.get("actual_distance")
         fuel_consumed = request.data.get("fuel_consumed")
 
+        try:
+            actual_distance = float(actual_distance)
+            fuel_consumed = float(fuel_consumed)
+        except (TypeError, ValueError):
+            return Response(
+                {"error": "Distance and fuel must be numeric."},
+                status=status.HTTP_400_BAD_REQUEST,
+    )
+
+        if actual_distance <= 0:
+            return Response(
+                {"error": "Actual distance must be greater than 0."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if fuel_consumed <= 0:
+            return Response(
+                {"error": "Fuel consumed must be greater than 0."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         if actual_distance is None:
             return Response(
                 {"error": "actual_distance is required."},
@@ -78,12 +123,21 @@ class TripViewSet(ModelViewSet):
 
         trip.actual_distance = actual_distance
         trip.fuel_consumed = fuel_consumed
+
+        final_odometer = request.data.get("final_odometer")
+
+        if final_odometer is not None:
+            trip.vehicle.odometer = final_odometer
+
         trip.end_time = timezone.now()
         trip.status = Trip.Status.COMPLETED
 
         trip.vehicle.status = Vehicle.VehicleStatus.AVAILABLE
-
         trip.vehicle.save()
+
+
+        trip.driver.status = Driver.DriverStatus.AVAILABLE
+        trip.driver.save()
         trip.save()
 
         return Response(
@@ -98,9 +152,12 @@ class TripViewSet(ModelViewSet):
     def cancel_trip(self, request, pk=None):
         trip = self.get_object()
 
-        if trip.status == Trip.Status.COMPLETED:
+        if trip.status in [
+            Trip.Status.COMPLETED,
+            Trip.Status.CANCELLED,
+        ]:
             return Response(
-                {"error": "Completed trip cannot be cancelled."},
+                {"error": "Already completed or cancelled trip."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -109,6 +166,10 @@ class TripViewSet(ModelViewSet):
         if trip.vehicle.status == Vehicle.VehicleStatus.ON_TRIP:
             trip.vehicle.status = Vehicle.VehicleStatus.AVAILABLE
             trip.vehicle.save()
+
+        if trip.driver.status == Driver.DriverStatus.ON_TRIP:
+            trip.driver.status = Driver.DriverStatus.AVAILABLE
+            trip.driver.save()
 
         trip.save()
 

@@ -1,5 +1,8 @@
 from django.db import models
+# pyrefly: ignore [missing-import]
 from vehicles.models import Vehicle
+# pyrefly: ignore [missing-import]
+from drivers.models import Driver
 
 
 class Trip(models.Model):
@@ -14,6 +17,14 @@ class Trip(models.Model):
         Vehicle,
         on_delete=models.CASCADE,
         related_name="trips"
+    )
+
+    driver = models.ForeignKey(
+        Driver,
+        on_delete=models.CASCADE,
+        related_name="trips",
+        null=True,
+        blank=True
     )
 
     source = models.CharField(max_length=255)
@@ -38,6 +49,7 @@ class Trip(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Trip #{self.id}"

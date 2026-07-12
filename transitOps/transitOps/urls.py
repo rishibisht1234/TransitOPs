@@ -20,6 +20,9 @@ urlpatterns = [
     path("api/maintenance/", include("maintenance.urls")),
     path("api/trips/", include("trips.urls")),
     path("api/expenses/", include("expenses.urls")),
+    path("api/dashboard/", include("dashboard.urls")),
+    path("api/reports/", include("reports.urls")),
+    path("api/accounts/", include("accounts.urls")),
 
     # JWT
     path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
